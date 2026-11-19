@@ -7,50 +7,110 @@
 
 ## 一、竞品清单
 
+门槛图例：
+- 🟢 自助注册，有免费额度或试用，个人可跑通
+- 🟡 需企业认证 / 申请试用（要联系销售或提交资质）
+- 🔴 仅 Demo / 商务洽谈，不开放注册
+
 ### A 工作流型：流程由画布 / 编排决定
 
-| 产品 | 官网 | 体验门槛 | 体验重点 |
+| 产品 | 官网 | 门槛 | 体验重点 |
 |---|---|---|---|
-| Twilio Studio | https://www.twilio.com/studio | 需信用卡，有试用额度 | 拖拽 Flow，看节点跳转如何写死 |
-| Amazon Connect + Lex | https://aws.amazon.com/connect | 需 AWS 账号（可试用） | Contact Flow 画布 + Lambda 分支 |
-| 阿里云云呼叫中心 | https://www.aliyun.com/product/ccc | 企业实名 + 号码资质 | 国内最典型的外呼流程编排 |
-| 容联七陌 | https://www.7moor.com | 企业试用 | 呼叫中心 + 机器人流程 |
-| 天润融通 | https://www.ti-net.com.cn | 企业试用 | 大型呼叫中心流程配置 |
+| Twilio Studio | https://www.twilio.com/studio | 🟢 需信用卡 | 拖拽 Flow，看节点跳转如何写死 |
+| Amazon Connect | https://aws.amazon.com/connect | 🟢 AWS 账号 | Contact Flow 画布 + Lambda 分支 |
+| n8n | https://n8n.io | 🟢 开源可自部署 | 节点式编排，接 HTTP / 大模型都能连 |
+| Make | https://www.make.com | 🟢 免费层 | 可视化自动化，理解“编排器”心智 |
+| 腾讯云 HiFlow | https://hiflow.tencent.com | 🟢 有免费额度 | 国内低代码编排，连企业微信 / 表格 |
+| 阿里云云工作流 FnF | https://www.aliyun.com/product/fnf | 🟡 需开通 | 国内托管工作流，有可视化执行图 |
+| 阿里云云呼叫中心 | https://www.aliyun.com/product/ccc | 🟡 企业实名 + 号码 | 国内最典型的外呼流程编排 |
+| 腾讯云云呼叫中心 | https://cloud.tencent.com/product/ccc | 🟡 企业认证 | 外呼任务 + 流程配置 |
+| 火山引擎智能外呼 | https://www.volcengine.com | 🟡 企业认证 | 字节系外呼，流程 + 大模型混编 |
+| 容联七陌 | https://www.7moor.com | 🟡 企业试用 | 呼叫中心 + 机器人流程 |
+| 天润融通 | https://www.ti-net.com.cn | 🟡 企业试用 | 大型呼叫中心流程配置 |
+| 合力亿捷 | https://www.hollycrm.com | 🟡 企业试用 | 客服 + 外呼一体化流程 |
+| 智齿科技 | https://www.sobot.com | 🟡 企业试用 | 智能客服流程编排，外呼可演示 |
 
 ### B 状态机型：转移表 + 放行条件决定
 
-| 产品 | 官网 | 体验门槛 | 体验重点 |
+| 产品 | 官网 | 门槛 | 体验重点 |
 |---|---|---|---|
-| Microsoft Copilot Studio | https://www.microsoft.com/microsoft-copilot/microsoft-copilot-studio | 可免费试用 | Topic 触发短语 + 会话状态，最接近分层状态图 |
-| Amazon Lex | https://aws.amazon.com/lex | AWS 账号 | Intent / Slot / Fulfillment 的本质就是状态迁移 |
-| Rasa | https://rasa.com | 开源可本地跑 | stories / rules 就是写死的转移，能真看代码 |
-| 阿里云对话机器人 | https://www.aliyun.com/product/beebot | 企业开通 | 多轮对话的意图-槽位-状态 |
-| 腾讯云 TBP | https://cloud.tencent.com/product/tbp | 企业开通 | 国内银行 / 政务常用的任务式对话 |
+| Microsoft Copilot Studio | https://www.microsoft.com/microsoft-copilot/microsoft-copilot-studio | 🟢 免费试用 | Topic 触发短语 + 会话状态，最接近分层状态图 |
+| Google Dialogflow CX | https://cloud.google.com/dialogflow | 🟢 有试用额度 | Flow + Page + 状态处理器，最标准的状态机式对话 |
+| Amazon Lex | https://aws.amazon.com/lex | 🟢 AWS 账号 | Intent / Slot / Fulfillment 本质就是状态迁移 |
+| Rasa | https://rasa.com | 🟢 开源本地跑 | stories / rules 就是写死的转移，能看代码 |
+| Botpress | https://botpress.com | 🟢 免费层 | 流程 + 知识库混合，适合对照 |
+| Voiceflow | https://www.voiceflow.com | 🟢 免费层 | 对话流程设计器，拖拽即见状态与跳转 |
+| Stately Studio | https://stately.ai | 🟢 浏览器即用 | 纯状态机画图 + 仿真，配合 XState 看转移表 |
+| 阿里云对话机器人 | https://www.aliyun.com/product/beebot | 🟡 企业开通 | 多轮对话的意图 - 槽位 - 状态 |
+| 腾讯云 TBP | https://cloud.tencent.com/product/tbp | 🟡 企业开通 | 银行 / 政务常用的任务式对话 |
+| 百度智能客服 | https://cloud.baidu.com | 🟡 企业认证 | 任务式多轮对话配置 |
 
 ### C Agent 型：模型运行时决定
 
-| 产品 | 官网 | 体验门槛 | 体验重点 |
+**境外（自助注册为主）**
+
+| 产品 | 官网 | 门槛 | 体验重点 |
 |---|---|---|---|
-| Retell AI | https://www.retellai.com | 自助注册，可买号 | 语音 agent + function calling |
-| Vapi | https://vapi.ai | 自助注册 | 工具调用与打断处理，文档透明 |
-| ElevenLabs Agents | https://elevenlabs.io/agents | 自助注册 | 端到端语音 + 工具，延迟可感知 |
-| 阿里云百炼 | https://bailian.console.aliyun.com | 自助开通 | 国内可跑实时语音 + 智能体编排 |
-| 扣子 Coze | https://www.coze.cn | 自助，免费 | 插件 / 工作流 / 智能体三种模式可对比 |
-| 腾讯云智能体开发平台 ADP | https://cloud.tencent.com/product/adp | 可试用 | 企业知识库 + 工作流 + Agent 混编 |
+| Retell AI | https://www.retellai.com | 🟢 送试用额度 | 语音 agent + function calling，最接近 demo 的 C 卡 |
+| Vapi | https://vapi.ai | 🟢 送试用额度 | 工具调用、打断、日志都很透明 |
+| Bland AI | https://www.bland.ai | 🟢 自助 | 电话 agent，主打可编程通话 |
+| ElevenLabs Agents | https://elevenlabs.io/agents | 🟢 免费额度 | 端到端语音 + 工具，延迟体感最直接 |
+| Synthflow | https://synthflow.ai | 🟢 试用 | 无代码搭语音 agent，模板多 |
+| Lindy | https://www.lindy.ai | 🟢 免费额度 | 偏工作流式的 agent，适合看边界 |
 
-### 企业级（只看 Demo，不开放自助）
+**国内**
 
-| 产品 | 官网 |
-|---|---|
-| Sierra | https://sierra.ai |
-| Parloa | https://www.parloa.com |
-| Decagon | https://www.decagon.ai |
+| 产品 | 官网 | 门槛 | 体验重点 |
+|---|---|---|---|
+| 阿里云百炼 | https://bailian.console.aliyun.com | 🟢 实名 + 免费额度 | 实时语音 + 智能体编排，国内最接近 S2S 体验 |
+| 扣子 Coze | https://www.coze.cn | 🟢 免费 | 插件 / 工作流 / 智能体三种模式可直接对比 |
+| 腾讯云智能体开发平台 ADP | https://cloud.tencent.com/product/adp | 🟢 可试用 | 知识库 + 工作流 + Agent 混编 |
+| 火山引擎方舟 | https://www.volcengine.com/product/ark | 🟢 可开通 | 豆包模型 + 智能体，语音链路需另配 |
+| Dify | https://dify.ai | 🟢 开源可自部署 | 工作流与 Agent 两种模式并存，适合做对照实验 |
+| 讯飞开放平台 | https://www.xfyun.cn | 🟢 免费额度 | ASR / TTS / 大模型全套，适合自己拼链路 |
+| 京东言犀 | https://yanxi.jd.com | 🟡 企业 | 电商场景外呼与数字人 |
+| 硅基智能 | https://www.guiji.ai | 🟡 企业 | 数字人 + 外呼，话术工程化程度高 |
+| 云蝠智能 | https://www.yunfuai.com | 🟡 企业 | 国内外呼机器人，偏中小客户 |
+| 一知智能 | https://www.yizhi.ai | 🟡 企业 | 消费品牌外呼场景 |
 
-### 现实门槛
+### D 企业级：仅 Demo / 商务洽谈
 
-- 国内真实电话外呼需要：企业实名 + 号码资质 + 线路报备，个人通常拿不到。
-- 因此体验分两层：① 平台内 Web 通话 / 文本调试（人人可做）；② 真实电话外呼（需企业资质）。
-- 境外平台可自助买号，但中文语音质量与国内线路不对等，不能据此下最终结论。
+| 产品 | 官网 | 类型 |
+|---|---|---|
+| Sierra | https://sierra.ai | Agent 客服 |
+| Parloa | https://www.parloa.com | 语音 Agent |
+| Decagon | https://www.decagon.ai | Agent 客服 |
+| PolyAI | https://poly.ai | 语音 Agent |
+| Cognigy | https://www.cognigy.com | 对话编排（已被 NiCE 收购） |
+| Genesys | https://www.genesys.com | 全渠道联络中心 |
+| Five9 | https://www.five9.com | 云呼叫中心 |
+| NiCE CXone | https://www.nice.com | 联络中心 + 自动化 |
+| Talkdesk | https://www.talkdesk.com | 云联络中心 |
+| ASAPP | https://www.asapp.com | 企业客服 AI |
+| Ada | https://www.ada.cx | 客服 Agent |
+| Intercom Fin | https://www.intercom.com/fin | 客服 Agent |
+| Cresta | https://cresta.com | 坐席辅助 |
+| 华为云 AICC | https://www.huaweicloud.com | 智能客服 / 外呼 |
+
+### 建议先跑的 10 个（都能自助注册）
+
+1. Microsoft Copilot Studio —— 看状态图
+2. Google Dialogflow CX —— 看 Flow / Page 状态机
+3. Voiceflow —— 看拖拽式对话流程
+4. Twilio Studio —— 看节点编排的“死板”
+5. Retell AI —— 看语音 Agent 的工具调用
+6. Vapi —— 看打断与延迟
+7. ElevenLabs Agents —— 看端到端语音体感
+8. 阿里云百炼 —— 国内语音 + 智能体
+9. 扣子 Coze —— 免费对照三种模式
+10. Dify —— 开源，可本地改代码验证边界
+
+### 门槛提醒
+
+- 境外平台注册多需信用卡验证（通常预扣 $1–10），没有外币卡会卡住。
+- 国内平台基本要实名（个人身份证即可开通的大部分是模型平台，外呼号码另需企业资质）。
+- 标 🔴 的不要花时间注册，直接看官网 Demo 视频或约演示。
+- 所有“免费额度”以官网当期政策为准，可能随时调整。
 
 ---
 
