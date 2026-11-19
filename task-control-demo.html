@@ -190,6 +190,41 @@
   .sm-note .sm-line b { color: var(--c); font-weight: 600; }
   .sm-note .sm-line.dim { color: color-mix(in srgb, var(--muted) 70%, transparent); }
 
+  /* state machine: layered states */
+  .sm-layers { display: flex; flex-direction: column; gap: 7px; }
+  .sm-layer { display: flex; gap: 7px; align-items: flex-start; }
+  .sm-lname {
+    flex: none; width: 38px; padding-top: 5px;
+    font-family: var(--font-mono); font-size: 9px; color: var(--muted); letter-spacing: .03em;
+  }
+  .sm-chips { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+  .sm-chip {
+    font-size: 10px; line-height: 1.25; padding: 4px 7px; white-space: nowrap;
+    border: 1px solid var(--rule); border-radius: 6px;
+    background: rgba(255,255,255,.015); color: var(--ink); transition: .2s ease;
+  }
+  .sm-chip small {
+    display: block; font-family: var(--font-mono); font-size: 8px;
+    color: var(--muted); letter-spacing: .02em;
+  }
+  .sm-chip.term { border-style: dashed; }
+  .sm-chip.active {
+    border-color: var(--c); color: var(--c);
+    background: color-mix(in srgb, var(--c) 16%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 10%, transparent);
+  }
+  .sm-chip.active small { color: color-mix(in srgb, var(--c) 70%, var(--muted)); }
+  .sm-chip.done { border-color: color-mix(in srgb, var(--ok) 38%, var(--rule)); }
+  .sm-chip.done small { color: var(--ok); }
+  .sm-chip.bad { border-color: var(--err); background: rgba(248,113,113,.10); color: var(--err); }
+  .fsm-row { display: flex; align-items: center; gap: 4px; margin-top: 5px; }
+  .fsm-l { width: 16px; flex: none; font-family: var(--font-mono); font-size: 8.5px; color: var(--muted); }
+  .fsm-s {
+    font-family: var(--font-mono); font-size: 9px; padding: 1px 5px;
+    border: 1px solid var(--rule); border-radius: 4px;
+  }
+  .fsm-a { font-size: 9px; color: var(--muted); }
+
   /* agent */
   .loop { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 12px; }
   .loop .stage {
@@ -541,31 +576,64 @@
       </div>
 
       <div class="viz">
-        <div class="sm-wrap">
-          <div class="rail">
-            <div class="node" data-state="START">开场白<small>START</small></div>
-            <div class="connector">确认用车</div>
-            <div class="node" data-state="CARGO">货物信息沟通<small>CARGO</small></div>
-            <div class="connector">信息补全</div>
-            <div class="node" data-state="NEGOTIATE">议价<small>NEGOTIATE</small></div>
-            <div class="connector">同意加价 / 同意报价</div>
-            <div class="node" data-state="END">友善结束<small>END</small></div>
+        <div class="sm-layers" id="sm-layers">
+          <div class="sm-layer">
+            <span class="sm-lname">L0 触达</span>
+            <div class="sm-chips">
+              <span class="sm-chip" data-state="DIALING">拨号中<small>DIALING</small></span>
+              <span class="sm-chip" data-state="OPENING">开场白<small>OPENING</small></span>
+            </div>
+          </div>
+          <div class="sm-layer">
+            <span class="sm-lname">L1 议价</span>
+            <div class="sm-chips">
+              <span class="sm-chip" data-state="NEGO">议价 ≤3 轮<small>NEGO</small></span>
+              <span class="sm-chip" data-state="CHALLENGE">用户挑战<small>CHALLENGE</small></span>
+            </div>
+          </div>
+          <div class="sm-layer">
+            <span class="sm-lname">L2 引导</span>
+            <div class="sm-chips">
+              <span class="sm-chip" data-state="GUIDE_QUOTE">引导同意报价<small>GUIDE_QUOTE</small></span>
+              <span class="sm-chip" data-state="GUIDE_PRICE">引导加价<small>GUIDE_PRICE</small></span>
+            </div>
+          </div>
+          <div class="sm-layer">
+            <span class="sm-lname">L3 收尾</span>
+            <div class="sm-chips">
+              <span class="sm-chip" data-state="FOLLOW_QUOTE">嘱咐接听<small>FOLLOW_QUOTE</small></span>
+              <span class="sm-chip" data-state="FOLLOW_PRICE">安抚接听<small>FOLLOW_PRICE</small></span>
+              <span class="sm-chip" data-state="CLOSE_SUCCESS">成功收尾<small>CLOSE_SUCCESS</small></span>
+              <span class="sm-chip" data-state="WAIT">安抚等待<small>WAIT</small></span>
+              <span class="sm-chip" data-state="ESCALATE">异常升级<small>ESCALATE</small></span>
+              <span class="sm-chip" data-state="CLOSE_REJECT">加价失败<small>CLOSE_REJECT</small></span>
+              <span class="sm-chip" data-state="CLOSE_OP">操作失败<small>CLOSE_OP</small></span>
+              <span class="sm-chip" data-state="CLOSE_EARLY">早期挂断<small>CLOSE_EARLY</small></span>
+            </div>
+          </div>
+          <div class="sm-layer">
+            <span class="sm-lname">L4 结单</span>
+            <div class="sm-chips">
+              <span class="sm-chip" data-state="SUMMARY">通话小结<small>SUMMARY</small></span>
+              <span class="sm-chip" data-state="PUSH">司机侧触达<small>PUSH</small></span>
+              <span class="sm-chip term" data-state="NEXT">进入呼司机<small>NEXT</small></span>
+            </div>
           </div>
         </div>
         <div class="allowed" id="sm-allowed">
           <span class="lbl">当前状态允许的转移</span>
-          <span>确认用车 → CARGO</span>
+          <span>接通 → OPENING</span>
         </div>
         <div class="sm-note">
-          <div class="sm-line"><b>放行条件 · 货物 6 项</b>（确认齐了才让往下走）：货物类型 · 重量 · 体积 · 包装方式 · 装卸要求 · 拼车方式</div>
-          <div class="sm-line"><b>NEGOTIATE 内部动作（对应 S3–S6）</b>：S3 引导加价 → S4 引导同意司机报价 → S5 强调立刻操作 → S6 提示不要取消</div>
-          <div class="sm-line dim">这 4 步不改变状态，只算议价内的动作；在工作流里它们是 4 个独立节点。</div>
+          <div class="sm-line"><b>议价最多 3 轮</b>：轮 1 引导同意报价 → 轮 2 降预期 → 轮 3 加价引导；每轮都可能被「用户挑战」打断，应答后回到同一轮。</div>
+          <div class="sm-line"><b>全局异常出口</b>：不用车 / 辱骂 / 投诉 / 挂断 → ESCALATE；所有终态统一汇入 SUMMARY。</div>
+          <div class="sm-line dim">状态只反映阶段，不记录“走到第几步”；轮次由 NEGO 自身计数。</div>
         </div>
       </div>
 
-      <div class="statusline"><span class="dot" id="sm-dot"></span>当前状态：<b id="sm-state">START</b></div>
+      <div class="statusline"><span class="dot" id="sm-dot"></span>当前状态：<b id="sm-state">DIALING</b></div>
       <div class="log" id="sm-log"></div>
-      <div class="pfoot">只有 4 个状态：<b>议价内的加价/报价/操作都被折叠</b>；非法转移、条件不满足的都会被拦下。</div>
+      <div class="pfoot">5 层 17 个状态：<b>每一层只允许图上画出的边</b>；非法转移、放行条件不满足的都会被拦下。</div>
     </article>
 
     <!-- ===== Agent ===== -->
@@ -673,17 +741,15 @@
           <div class="adown"><span>事件 E</span></div>
           <div class="abox key">
             <b>状态机内核（状态图）</b>
-            <small>当前状态 S × 事件 E → S′</small>
+            <small>当前状态 S × 事件 E → S′ · 17 状态 / 5 层</small>
             <div class="fsm">
-              <div class="fsm-node"><b>START</b><small>开场白</small></div>
-              <div class="fsm-edge">↓ 用户确认用车</div>
-              <div class="fsm-node"><b>CARGO</b><small>货物信息沟通</small></div>
-              <div class="fsm-edge">↓ 信息补全（6 项全齐）</div>
-              <div class="fsm-node"><b>NEGOTIATE</b><small>议价</small></div>
-              <div class="fsm-edge">↓ 同意加价 / 同意司机报价</div>
-              <div class="fsm-node end"><b>END</b><small>友善结束</small></div>
-              <div class="fsm-loop">↺ 自环：提问 / 拒绝加价 / 不表态 / 沉默 / 未识别</div>
-              <div class="fsm-loop">全局：任意状态 + 投诉、辱骂 → END（道歉收尾）</div>
+              <div class="fsm-row"><span class="fsm-l">L0</span><span class="fsm-s">DIALING</span><span class="fsm-a">→</span><span class="fsm-s">OPENING</span></div>
+              <div class="fsm-row"><span class="fsm-l">L1</span><span class="fsm-s">NEGO</span><span class="fsm-a">⇄</span><span class="fsm-s">CHALLENGE</span></div>
+              <div class="fsm-row"><span class="fsm-l">L2</span><span class="fsm-s">GUIDE_QUOTE</span><span class="fsm-a">/</span><span class="fsm-s">GUIDE_PRICE</span></div>
+              <div class="fsm-row"><span class="fsm-l">L3</span><span class="fsm-s">FOLLOW_*</span><span class="fsm-a">→</span><span class="fsm-s">CLOSE_*</span><span class="fsm-a">/</span><span class="fsm-s">ESCALATE</span></div>
+              <div class="fsm-row"><span class="fsm-l">L4</span><span class="fsm-s">SUMMARY</span><span class="fsm-a">→</span><span class="fsm-s">PUSH</span><span class="fsm-a">→</span><span class="fsm-s">NEXT</span></div>
+              <div class="fsm-loop">↺ NEGO 自环：最多 3 轮议价，挑战应答后回原轮</div>
+              <div class="fsm-loop">异常：不用车 / 辱骂 / 投诉 / 挂断 → ESCALATE</div>
             </div>
           </div>
           <div class="adown"><span>查 S×E → S′</span></div>
@@ -741,16 +807,27 @@
             <tr><th>当前状态</th><th>事件</th><th>下一状态</th><th>放行条件 / 说明</th><th>demo 里怎么触发</th></tr>
           </thead>
           <tbody>
-            <tr><td>开场白</td><td>用户确认用车</td><td>货物信息沟通</td><td>—</td><td>「正常成单」第 1 轮</td></tr>
-            <tr><td>货物信息沟通</td><td>信息补全</td><td>议价</td><td>货物 6 项全齐：类型 / 重量 / 体积 / 包装 / 装卸 / 拼车</td><td>「正常成单」补全货物信息</td></tr>
-            <tr class="inner"><td>货物信息沟通</td><td>用户提问</td><td>货物信息沟通（内部转移）</td><td>知识库命中则回答后回到当前状态</td><td>「用户提问」</td></tr>
-            <tr><td>议价</td><td>用户同意加价</td><td>友善结束</td><td>—</td><td>「正常成单」第 2 轮</td></tr>
-            <tr class="inner"><td>议价</td><td>用户拒绝加价</td><td>议价（内部转移）</td><td>还有议价动作可用</td><td>「拒绝加价」</td></tr>
-            <tr><td>议价</td><td>用户同意司机报价</td><td>友善结束</td><td>—</td><td>「正常成单」第 3 轮</td></tr>
-            <tr class="inner"><td>议价</td><td>用户不表态</td><td>议价（内部转移）</td><td>预期管理</td><td>—（demo 未单独设按钮）</td></tr>
-            <tr><td>任意状态</td><td>用户投诉 / 辱骂</td><td>友善结束（道歉收尾）</td><td>—</td><td>「抱怨投诉」</td></tr>
-            <tr class="inner"><td>任意状态</td><td>沉默</td><td>当前状态（内部转移）</td><td>唤醒</td><td>「沉默未识别」</td></tr>
-            <tr class="inner"><td>任意状态</td><td>意图未识别</td><td>当前状态（内部转移）</td><td>重述</td><td>「沉默未识别」</td></tr>
+            <tr><td>L0 · 拨号中 DIALING</td><td>接通</td><td>开场白 OPENING</td><td>—</td><td>全部事件第 1 步</td></tr>
+            <tr class="inner"><td>L0 · 拨号中 DIALING</td><td>忙音 / 拒接 / 无人接</td><td>拨号中（内部转移）</td><td>进入重呼队列</td><td>「沉默未识别」</td></tr>
+            <tr class="inner"><td>L0 · 拨号中 DIALING</td><td>空号 / 停机</td><td>永久删除</td><td>终态，不再呼</td><td>—</td></tr>
+            <tr><td>L0 · 开场白 OPENING</td><td>报价播报 + 静默 0.5s</td><td>议价 NEGO</td><td>身份澄清 → 报司机价 → 引导同意</td><td>全部事件</td></tr>
+            <tr class="inner"><td>L0 · 开场白 OPENING</td><td>用户当场拒绝</td><td>早期挂断 CLOSE_EARLY</td><td>—</td><td>—</td></tr>
+            <tr><td>L1 · 议价 NEGO</td><td>同意司机报价</td><td>引导同意报价 GUIDE_QUOTE</td><td>—</td><td>正常成单（备选路径）</td></tr>
+            <tr><td>L1 · 议价 NEGO</td><td>同意加价</td><td>引导加价 GUIDE_PRICE</td><td>—</td><td>「正常成单」</td></tr>
+            <tr class="inner"><td>L1 · 议价 NEGO</td><td>拒绝加价（未满 3 轮）</td><td>议价（内部转移）</td><td>轮次 &lt; 3</td><td>「拒绝加价」前两轮</td></tr>
+            <tr class="inner"><td>L1 · 议价 NEGO</td><td>拒绝加价（3 轮用尽）</td><td>加价失败 CLOSE_REJECT</td><td>轮次 = 3</td><td>「拒绝加价」</td></tr>
+            <tr class="inner"><td>L1 · 议价 NEGO</td><td>用户挑战（Q1–Q6）</td><td>用户挑战 CHALLENGE</td><td>命中挑战话术库</td><td>「用户提问」</td></tr>
+            <tr class="inner"><td>L1 · 用户挑战 CHALLENGE</td><td>知识库应答完成</td><td>议价 NEGO</td><td>回原轮，不推进轮次</td><td>「用户提问」</td></tr>
+            <tr><td>L2 · 引导同意报价 GUIDE_QUOTE</td><td>APP 点击「同意报价」成功</td><td>嘱咐接听 FOLLOW_QUOTE</td><td>已定位到订单详情页</td><td>—</td></tr>
+            <tr><td>L2 · 引导加价 GUIDE_PRICE</td><td>APP 点击「去加价」成功</td><td>安抚接听 FOLLOW_PRICE</td><td>已定位到加价入口</td><td>「正常成单」</td></tr>
+            <tr class="inner"><td>L2 · 引导操作 GUIDE_*</td><td>超时 / 引导失败</td><td>操作失败 CLOSE_OP</td><td>引导 ≤2 次</td><td>—</td></tr>
+            <tr><td>L3 · 嘱咐接听 FOLLOW_QUOTE</td><td>「通知司机马上联系您」</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>—</td></tr>
+            <tr><td>L3 · 安抚接听 FOLLOW_PRICE</td><td>安抚 + 嘱咐接听</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>「正常成单」</td></tr>
+            <tr><td>L3 · 任意状态</td><td>不用车 / 辱骂 / 投诉 / 挂断</td><td>异常升级 ESCALATE</td><td>全局异常边</td><td>「抱怨投诉」</td></tr>
+            <tr class="inner"><td>L3 · 所有终态</td><td>收尾完成</td><td>通话小结 SUMMARY</td><td>统一汇入</td><td>全部事件</td></tr>
+            <tr><td>L4 · 通话小结 SUMMARY</td><td>生成小结 + 定 Push 范围</td><td>司机侧触达 PUSH</td><td>结论 5 选 1</td><td>「正常成单」</td></tr>
+            <tr><td>L4 · 司机侧触达 PUSH</td><td>推送完成</td><td>进入呼司机 NEXT</td><td>按结论决定是否推送</td><td>「正常成单」</td></tr>
+            <tr class="inner"><td>L4 · 进入呼司机 NEXT</td><td>—</td><td>终态</td><td>重新呼司机 / 结束</td><td>—</td></tr>
           </tbody>
         </table>
       </div>
@@ -911,7 +988,7 @@
       <div class="case" style="--c:#a78bfa">
         <h3><span class="pill">状态机</span>画转移表</h3>
         <ul>
-          <li><b><a href="https://stately.ai/editor" target="_blank" rel="noopener">Stately Studio</a></b><em class="free">浏览器即用</em> <span>— 最推荐。照着图四画 START/CARGO/NEGOTIATE/END，加放行条件，点事件就能看非法转移被拦。</span></li>
+          <li><b><a href="https://stately.ai/editor" target="_blank" rel="noopener">Stately Studio</a></b><em class="free">浏览器即用</em> <span>— 最推荐。照着图四画 DIALING → OPENING → NEGO → GUIDE_PRICE → CLOSE_SUCCESS → SUMMARY，加放行条件，点事件就能看非法转移被拦。</span></li>
           <li><b><a href="https://stately.ai/docs/state-machines-and-statecharts" target="_blank" rel="noopener">XState 官方概念页</a></b><em class="free">免费</em> <span>— 配着 Studio 一起看，把 state / event / transition / guard 四个词对上。</span></li>
           <li><b><a href="https://www.camunda.com/" target="_blank" rel="noopener">Camunda</a></b><em class="paid">免费试用</em> <span>— BPMN 泳道 + 网关，看清“工作流引擎”和“状态机”到底差在哪。</span></li>
           <li><b><a href="https://www.flowable.com/open-source" target="_blank" rel="noopener">Flowable</a></b><em class="free">开源</em> <span>— 国内审批流最常见的开源引擎，可本地起一套跑请假/报销流程。</span></li>

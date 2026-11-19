@@ -185,35 +185,53 @@
   /* ---------------- 状态机 ---------------- */
 
   const SM_TABLE = {
-    START: [
-      '确认用车 → CARGO',
-      '沉默 → START（内部）',
-      '意图未识别 → START（内部）',
-      '投诉/辱骂 → END（道歉收尾）'
+    DIALING: [
+      '接通 → OPENING',
+      '忙音 / 拒接 / 无人接 → 重呼队列（内部）',
+      '空号 / 停机 → 永久删除（终态）'
     ],
-    CARGO: [
-      '信息补全 → NEGOTIATE（放行条件：货物 6 项已补全）',
-      '用户提问 → CARGO（内部）',
-      '沉默 → CARGO（内部）',
-      '意图未识别 → CARGO（内部）',
-      '投诉/辱骂 → END（道歉收尾）'
+    OPENING: [
+      '报价播报 + 静默 0.5s → NEGO',
+      '用户当场拒绝 → CLOSE_EARLY（直接挂机）',
+      '不用车 / 辱骂 / 投诉 → ESCALATE'
     ],
-    NEGOTIATE: [
-      '同意加价 → END',
-      '同意司机报价 → END',
-      '拒绝加价 → NEGOTIATE（内部，放行条件：还有议价动作）',
-      '不表态 → NEGOTIATE（内部，预期管理）',
-      '沉默 → NEGOTIATE（内部）',
-      '意图未识别 → NEGOTIATE（内部）',
-      '投诉/辱骂 → END（道歉收尾）'
+    NEGO: [
+      '同意司机报价 → GUIDE_QUOTE',
+      '同意加价 → GUIDE_PRICE',
+      '拒绝加价（未满 3 轮）→ NEGO（轮次 +1）',
+      '拒绝加价（3 轮用尽）→ CLOSE_REJECT',
+      '用户挑战 → CHALLENGE',
+      '不用车 / 辱骂 / 投诉 → ESCALATE'
     ],
-    END: ['— 终态（挂机后写回访记录）']
+    CHALLENGE: [
+      '知识库应答完成 → NEGO（回原轮）',
+      '应答后仍拒绝 → NEGO'
+    ],
+    GUIDE_QUOTE: [
+      'APP 操作成功 → FOLLOW_QUOTE',
+      '超时 / 引导失败 → CLOSE_OP'
+    ],
+    GUIDE_PRICE: [
+      'APP 操作成功 → FOLLOW_PRICE',
+      '超时 / 引导失败 → CLOSE_OP'
+    ],
+    FOLLOW_QUOTE: ['嘱咐接听完成 → CLOSE_SUCCESS'],
+    FOLLOW_PRICE: ['安抚 + 嘱咐完成 → CLOSE_SUCCESS'],
+    CLOSE_SUCCESS: ['终态 → SUMMARY'],
+    CLOSE_REJECT: ['终态 → SUMMARY'],
+    CLOSE_OP: ['终态 → SUMMARY'],
+    CLOSE_EARLY: ['终态 → SUMMARY'],
+    WAIT: ['价格已标注 → SUMMARY'],
+    ESCALATE: ['记录 + 安抚 + 挂机 → SUMMARY'],
+    SUMMARY: ['生成小结 + 定 Push 范围 → PUSH'],
+    PUSH: ['推送完成 → NEXT'],
+    NEXT: ['— 终态（重新呼司机 / 结束）']
   };
 
   function smSet(state) {
-    $$('.sm-wrap .node').forEach((n) => n.classList.remove('active', 'done', 'bad'));
-    const node = $(`.sm-wrap .node[data-state="${state}"]`);
-    if (node) node.classList.add(state === 'END' ? 'done' : 'active');
+    $$('.sm-chip').forEach((n) => n.classList.remove('active'));
+    const chip = $(`.sm-chip[data-state="${state}"]`);
+    if (chip) chip.classList.add('active');
     const label = document.getElementById('sm-state');
     if (label) label.textContent = state;
     const allowed = document.getElementById('sm-allowed');
@@ -230,11 +248,11 @@
 
   function smReset() {
     clearLog('sm');
-    $$('.sm-wrap .node').forEach((n) => n.classList.remove('active', 'done', 'bad'));
+    $$('.sm-chip').forEach((n) => n.classList.remove('active', 'done', 'bad'));
     const label = document.getElementById('sm-state');
-    if (label) label.textContent = 'START';
+    if (label) label.textContent = 'DIALING';
     const allowed = document.getElementById('sm-allowed');
-    if (allowed) allowed.innerHTML = '<span class="lbl">当前状态允许的转移</span><span>确认用车 → CARGO</span>';
+    if (allowed) allowed.innerHTML = '<span class="lbl">当前状态允许的转移</span><span>接通 → OPENING</span>';
     setDot('sm', false);
   }
 
@@ -242,66 +260,82 @@
     const suffix = note ? '  · ' + note : '';
     log('sm', `${from} --${event}--> ${to}${suffix}`, kind || 'step');
     await wait(ms, id);
+    if (from !== to) {
+      const prev = $(`.sm-chip[data-state="${from}"]`);
+      if (prev) { prev.classList.remove('active'); prev.classList.add('done'); }
+    }
     smSet(to);
   }
 
   async function runStateMachine(evt, id) {
     smReset();
     setDot('sm', true);
-    log('sm', '状态机启动：START（开场白）', 'info');
+    log('sm', '状态机启动：DIALING（拨号中）', 'info');
     await wait(280, id);
 
     if (evt === 'normal') {
-      await smGo('START', '确认用车', 'CARGO', 520, id, '进入动作：立人设、说明来电目的');
-      await smGo('CARGO', '信息补全', 'NEGOTIATE', 620, id, '放行条件：货物 6 项已补全');
-      log('sm', '确认明细：家具 / 1.2 吨 / 2.4 方 / 木架 / 需装卸 / 不拼车 —— 6 项齐才放行', 'info');
-      await wait(300, id);
-      await smGo('NEGOTIATE', '同意加价', 'END', 620, id, 'S4–S6 折叠在议价状态内');
-      log('sm', 'S3 引导加价（¥780→¥860，+9%）→ S4 引导同意司机报价 → S5 强调 APP 立刻操作 → S6 提示不要取消', 'info');
+      await smGo('DIALING', '接通', 'OPENING', 500, id, '线路接入 → 用户接听');
+      await smGo('OPENING', '报价播报 + 静默 0.5s', 'NEGO', 600, id, '身份澄清 → 报司机价 ¥780 → 引导同意');
+      log('sm', 'NEGO 轮 1：差价小，走“软议价 + 加价理由”话术', 'info');
       await wait(320, id);
-      log('sm', '这 4 步都不改变状态：状态机只认「还在议价 / 结束」，不认「走到第几步」。', 'ok');
+      await smGo('NEGO', '同意加价 ¥860', 'GUIDE_PRICE', 620, id, '轮 1 达成，转入引导加价');
+      await smGo('GUIDE_PRICE', 'APP 操作成功', 'FOLLOW_PRICE', 560, id, '打开 APP → 订单 → 点「去加价」');
+      await smGo('FOLLOW_PRICE', '安抚 + 嘱咐接听', 'CLOSE_SUCCESS', 520, id, '「我马上联系司机，别取消」');
+      await smGo('CLOSE_SUCCESS', '成功收尾', 'SUMMARY', 480, id, '寒暄后挂机');
+      await smGo('SUMMARY', '生成小结（结论 5 选 1）', 'PUSH', 460, id, '同意加价 | 决定 Push 范围');
+      await smGo('PUSH', '推送司机', 'NEXT', 440, id, '「货主已同意加价，请尽快联系」');
+      log('sm', '5 层链路走完：所有终态统一汇入 SUMMARY，再由 PUSH 触达司机侧。', 'ok');
       return;
     }
 
     if (evt === 'refuse') {
-      await smGo('START', '确认用车', 'CARGO', 460, id, '');
-      await smGo('CARGO', '信息补全', 'NEGOTIATE', 520, id, '放行条件：货物 6 项已补全');
-      await smGo('NEGOTIATE', '拒绝加价', 'NEGOTIATE', 560, id, '内部转移；放行条件：还有议价动作');
-      log('sm', '话术 A 被拒，仍在 NEGOTIATE，换话术 B', 'warn');
-      await wait(380, id);
-      log('sm', '检查放行条件：还有议价动作吗？没有', 'warn');
+      await smGo('DIALING', '接通', 'OPENING', 420, id, '');
+      await smGo('OPENING', '报价播报 + 静默', 'NEGO', 460, id, '');
+      await smGo('NEGO', '拒绝加价（剩 2 轮）', 'NEGO', 540, id, '轮次 1/3：降预期');
+      await smGo('NEGO', '拒绝加价（剩 1 轮）', 'NEGO', 540, id, '轮次 2/3：换加价理由');
+      log('sm', '轮 3 加价引导：让渡差额 80%，「价格上来，更远的司机也愿意来」', 'warn');
       await wait(420, id);
-      log('sm', '条件不满足：自转移被拒绝，走默认兜底（友善结束）', 'err');
-      smSet('END');
-      log('sm', 'NEGOTIATE --条件不满足--> END（表外兜底）', 'warn');
+      await smGo('NEGO', '拒绝加价（3 轮用尽）', 'CLOSE_REJECT', 560, id, '放行条件：轮次 < 3 才允许自环', 'warn');
+      await smGo('CLOSE_REJECT', '安抚、表明立场', 'SUMMARY', 500, id, '「别取消，我再帮您找找」');
+      log('sm', '3 轮是写死的上限，不靠模型判断“还能不能谈”；到点就转 CLOSE_REJECT。', 'err');
       return;
     }
 
     if (evt === 'question') {
-      await smGo('START', '确认用车', 'CARGO', 480, id, '');
-      await smGo('CARGO', '用户提问', 'CARGO', 560, id, '内部转移；知识库命中→回答后回到当前状态');
-      log('sm', '状态保持不变，继续补全资料，不会打断主线。', 'ok');
-      await smGo('CARGO', '信息补全', 'NEGOTIATE', 520, id, '放行条件：货物 6 项已补全');
-      await smGo('NEGOTIATE', '同意司机报价', 'END', 520, id, '');
+      await smGo('DIALING', '接通', 'OPENING', 420, id, '');
+      await smGo('OPENING', '报价播报 + 静默', 'NEGO', 460, id, '');
+      await smGo('NEGO', '用户挑战 Q1「怎么还要加钱」', 'CHALLENGE', 560, id, '打断当前轮，进入挑战状态');
+      log('sm', 'CHALLENGE：知识库应答 + 输出新报价，应答完回 NEGO 同一轮', 'info');
+      await wait(460, id);
+      await smGo('CHALLENGE', '应答完成', 'NEGO', 540, id, '不推进轮次、不改变阶段');
+      await smGo('NEGO', '同意加价 ¥860', 'GUIDE_PRICE', 520, id, '');
+      await smGo('GUIDE_PRICE', 'APP 操作成功', 'FOLLOW_PRICE', 500, id, '');
+      await smGo('FOLLOW_PRICE', '嘱咐接听', 'CLOSE_SUCCESS', 480, id, '');
+      await smGo('CLOSE_SUCCESS', '收尾', 'SUMMARY', 440, id, '');
+      await smGo('SUMMARY', '生成小结', 'PUSH', 420, id, '');
+      await smGo('PUSH', '推送司机', 'NEXT', 400, id, '');
       return;
     }
 
     if (evt === 'complain') {
-      await smGo('START', '确认用车', 'CARGO', 440, id, '');
-      await smGo('CARGO', '信息补全', 'NEGOTIATE', 500, id, '放行条件：货物 6 项已补全');
-      log('sm', '事件「投诉/辱骂」到达：查全局转移', 'event');
-      await wait(380, id);
-      await smGo('NEGOTIATE', '投诉/辱骂', 'END', 560, id, '全局转移：任意状态 → 友善结束（道歉收尾）', 'warn');
-      log('sm', '本次通话直接收尾，议价不再继续。', 'warn');
+      await smGo('DIALING', '接通', 'OPENING', 400, id, '');
+      await smGo('OPENING', '报价播报 + 静默', 'NEGO', 440, id, '');
+      log('sm', '事件「投诉」到达：命中全局异常边，任意状态 → ESCALATE', 'event');
+      await wait(420, id);
+      await smGo('NEGO', '投诉 / 辱骂', 'ESCALATE', 560, id, '全局转移：记录 → 安抚 → 挂机', 'warn');
+      await smGo('ESCALATE', '登记并挂机', 'SUMMARY', 500, id, '标记投诉，人工跟进');
+      log('sm', '异常分支同样有状态，不是“直接结束”那么粗暴。', 'warn');
       return;
     }
 
     if (evt === 'silence') {
-      await smGo('START', '确认用车', 'CARGO', 440, id, '');
-      await smGo('CARGO', '沉默', 'CARGO', 560, id, '内部转移；进入动作：唤醒话术');
-      log('sm', '状态不变，继续当前任务；连续沉默由状态内兜底动作处理。', 'ok');
-      await smGo('CARGO', '信息补全', 'NEGOTIATE', 500, id, '放行条件：货物 6 项已补全');
-      await smGo('NEGOTIATE', '同意加价', 'END', 500, id, '');
+      await smGo('DIALING', '无人接听（第 1 次）', 'DIALING', 520, id, '进入重呼队列', 'warn');
+      log('sm', '重呼队列：按既定间隔再拨，阶段不变', 'info');
+      await wait(400, id);
+      await smGo('DIALING', '重呼接通', 'OPENING', 480, id, '');
+      await smGo('OPENING', '静默 0.5s · 重述 2 次', 'CLOSE_EARLY', 560, id, '无有效回应，早期挂断');
+      await smGo('CLOSE_EARLY', '挂断', 'SUMMARY', 460, id, '记录「早期挂断」');
+      log('sm', '沉默不是死循环：重述有次数上限，到点走 CLOSE_EARLY。', 'warn');
       return;
     }
   }
