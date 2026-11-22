@@ -215,8 +215,8 @@
       'APP 操作成功 → FOLLOW_PRICE',
       '超时 / 引导失败 → CLOSE_OP'
     ],
-    FOLLOW_QUOTE: ['嘱咐接听完成 → CLOSE_SUCCESS'],
-    FOLLOW_PRICE: ['安抚 + 嘱咐完成 → CLOSE_SUCCESS'],
+    FOLLOW_QUOTE: ['提醒接听完成 → CLOSE_SUCCESS'],
+    FOLLOW_PRICE: ['安抚不取消 + 提醒接听 → CLOSE_SUCCESS'],
     CLOSE_SUCCESS: ['终态 → SUMMARY'],
     CLOSE_REJECT: ['终态 → SUMMARY'],
     CLOSE_OP: ['终态 → SUMMARY'],
@@ -280,7 +280,7 @@
       await wait(320, id);
       await smGo('NEGO', '同意加价 ¥860', 'GUIDE_PRICE', 620, id, '轮 1 达成，转入引导加价');
       await smGo('GUIDE_PRICE', 'APP 操作成功', 'FOLLOW_PRICE', 560, id, '打开 APP → 订单 → 点「去加价」');
-      await smGo('FOLLOW_PRICE', '安抚 + 嘱咐接听', 'CLOSE_SUCCESS', 520, id, '「我马上联系司机，别取消」');
+      await smGo('FOLLOW_PRICE', '稳住情绪 + 提醒接听', 'CLOSE_SUCCESS', 520, id, '「我马上联系司机，别取消」');
       await smGo('CLOSE_SUCCESS', '成功收尾', 'SUMMARY', 480, id, '寒暄后挂机');
       await smGo('SUMMARY', '生成小结（结论 5 选 1）', 'PUSH', 460, id, '同意加价 | 决定 Push 范围');
       await smGo('PUSH', '推送司机', 'NEXT', 440, id, '「货主已同意加价，请尽快联系」');
@@ -310,7 +310,7 @@
       await smGo('CHALLENGE', '应答完成', 'NEGO', 540, id, '不推进轮次、不改变阶段');
       await smGo('NEGO', '同意加价 ¥860', 'GUIDE_PRICE', 520, id, '');
       await smGo('GUIDE_PRICE', 'APP 操作成功', 'FOLLOW_PRICE', 500, id, '');
-      await smGo('FOLLOW_PRICE', '嘱咐接听', 'CLOSE_SUCCESS', 480, id, '');
+      await smGo('FOLLOW_PRICE', '提醒接听', 'CLOSE_SUCCESS', 480, id, '');
       await smGo('CLOSE_SUCCESS', '收尾', 'SUMMARY', 440, id, '');
       await smGo('SUMMARY', '生成小结', 'PUSH', 420, id, '');
       await smGo('PUSH', '推送司机', 'NEXT', 400, id, '');

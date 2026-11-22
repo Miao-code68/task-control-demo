@@ -608,8 +608,8 @@
           <div class="sm-layer">
             <span class="sm-lname">L3 收尾</span>
             <div class="sm-chips">
-              <span class="sm-chip" data-state="FOLLOW_QUOTE">嘱咐接听<small>FOLLOW_QUOTE</small></span>
-              <span class="sm-chip" data-state="FOLLOW_PRICE">安抚接听<small>FOLLOW_PRICE</small></span>
+              <span class="sm-chip" data-state="FOLLOW_QUOTE">提醒接听<small>FOLLOW_QUOTE</small></span>
+              <span class="sm-chip" data-state="FOLLOW_PRICE">稳住别取消<small>FOLLOW_PRICE</small></span>
               <span class="sm-chip" data-state="CLOSE_SUCCESS">成功收尾<small>CLOSE_SUCCESS</small></span>
               <span class="sm-chip" data-state="WAIT">安抚等待<small>WAIT</small></span>
               <span class="sm-chip" data-state="ESCALATE">异常升级<small>ESCALATE</small></span>
@@ -832,11 +832,11 @@
             <tr class="inner"><td>L1 · 议价 NEGO</td><td>拒绝加价（3 轮用尽）</td><td>加价失败 CLOSE_REJECT</td><td>轮次 = 3</td><td>「拒绝加价」</td></tr>
             <tr class="inner"><td>L1 · 议价 NEGO</td><td>用户挑战（Q1–Q6）</td><td>用户挑战 CHALLENGE</td><td>命中挑战话术库</td><td>「用户提问」</td></tr>
             <tr class="inner"><td>L1 · 用户挑战 CHALLENGE</td><td>知识库应答完成</td><td>议价 NEGO</td><td>回原轮，不推进轮次</td><td>「用户提问」</td></tr>
-            <tr><td>L2 · 引导同意报价 GUIDE_QUOTE</td><td>APP 点击「同意报价」成功</td><td>嘱咐接听 FOLLOW_QUOTE</td><td>已定位到订单详情页</td><td>—</td></tr>
-            <tr><td>L2 · 引导加价 GUIDE_PRICE</td><td>APP 点击「去加价」成功</td><td>安抚接听 FOLLOW_PRICE</td><td>已定位到加价入口</td><td>「正常成单」</td></tr>
+            <tr><td>L2 · 引导同意报价 GUIDE_QUOTE</td><td>APP 点击「同意报价」成功</td><td>提醒接听 FOLLOW_QUOTE</td><td>已定位到订单详情页</td><td>—</td></tr>
+            <tr><td>L2 · 引导加价 GUIDE_PRICE</td><td>APP 点击「去加价」成功</td><td>稳住别取消 FOLLOW_PRICE</td><td>已定位到加价入口</td><td>「正常成单」</td></tr>
             <tr class="inner"><td>L2 · 引导操作 GUIDE_*</td><td>超时 / 引导失败</td><td>操作失败 CLOSE_OP</td><td>引导 ≤2 次</td><td>—</td></tr>
-            <tr><td>L3 · 嘱咐接听 FOLLOW_QUOTE</td><td>「通知司机马上联系您」</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>—</td></tr>
-            <tr><td>L3 · 安抚接听 FOLLOW_PRICE</td><td>安抚 + 嘱咐接听</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>「正常成单」</td></tr>
+            <tr><td>L3 · 提醒接听 FOLLOW_QUOTE</td><td>「通知司机马上联系您」</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>—</td></tr>
+            <tr><td>L3 · 稳住别取消 FOLLOW_PRICE</td><td>安抚不取消 + 提醒接听</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>「正常成单」</td></tr>
             <tr><td>L3 · 任意状态</td><td>不用车 / 辱骂 / 投诉 / 挂断</td><td>异常升级 ESCALATE</td><td>全局异常边</td><td>「抱怨投诉」</td></tr>
             <tr class="inner"><td>L3 · 所有终态</td><td>收尾完成</td><td>通话小结 SUMMARY</td><td>统一汇入</td><td>全部事件</td></tr>
             <tr><td>L4 · 通话小结 SUMMARY</td><td>生成小结 + 定 Push 范围</td><td>司机侧触达 PUSH</td><td>结论 5 选 1</td><td>「正常成单」</td></tr>
