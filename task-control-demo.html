@@ -327,6 +327,13 @@
     border: 1px solid var(--rule); border-radius: 999px; padding: 2px 7px; white-space: nowrap;
   }
   .arch-body { display: flex; flex-direction: column; }
+  .arch-body > * { flex: none; }
+  .aor {
+    display: flex; align-items: center; gap: 6px;
+    padding: 3px 0; font-size: 9px; color: var(--muted);
+  }
+  .aor::before, .aor::after { content: ""; height: 1px; flex: 1; background: var(--rule); }
+  .anote { margin-top: 5px; font-size: 9px; color: var(--muted); text-align: center; line-height: 1.45; }
   .abox {
     border: 1px solid var(--rule); border-radius: 7px; padding: 6px 7px;
     text-align: center; background: rgba(255,255,255,.018);
@@ -777,9 +784,16 @@
           <div class="adown"><span>音频流 · VAD · 支持打断</span></div>
           <div class="abox key">
             <b>S2S 语音大模型</b>
-            <small>音频 token 直入直出</small>
+            <small>听 · 想 · 说 一体 · 音频 token 直入直出</small>
             <div class="anodes"><span>听</span><span>想</span><span>说</span></div>
           </div>
+          <div class="aor">或</div>
+          <div class="arow">
+            <div class="abox"><b>ASR</b><small>听 · 语音转文本</small></div>
+            <div class="abox"><b>理解层</b><small>想 · 意图与决策</small></div>
+            <div class="abox"><b>TTS</b><small>说 · 文本转语音</small></div>
+          </div>
+          <div class="anote">两条链路二选一：S2S 把听想说合成一个模型；ASR + 理解层 + TTS 把听想说拆成三段</div>
           <div class="adown"><span>function calling</span></div>
           <div class="arow">
             <div class="abox"><b>查订单</b><small>工具</small></div>
@@ -788,7 +802,7 @@
           </div>
           <div class="adown"><span>结果回填上下文</span></div>
           <div class="abox"><b>护栏层</b><small>授权边界 · 禁答库 · 内容审核</small></div>
-          <div class="aloop">语音直出 → 直接回给司机（无独立 TTS 节点）</div>
+          <div class="aloop">语音直出：S2S 直接回音频（级联链路则 TTS 合成后回放）</div>
           <div class="asplit"><span>前置预取省 RTT</span><span>会话落日志</span></div>
           <div class="astore">记忆：预取上下文 · 会话摘要 · 工具结果</div>
         </div>
@@ -834,234 +848,7 @@
     </div>
   </section>
 
-  <!-- ===== 对比表 ===== -->
-  <section class="block">
-    <div class="sec-head">
-      <span class="sec-no">02</span>
-      <h2>一张表看清边界</h2>
-      <p>选型的本质：你愿意把“下一步”交给谁</p>
-    </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr><th>维度</th><th>工作流</th><th>状态机</th><th>Agent</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>组织方式</td><td>步骤、条件分支、调用编排</td><td>当前阶段、事件、允许的转移（+ 放行条件）</td><td>模型在授权范围内动态选择步骤与工具</td></tr>
-          <tr><td>谁决定下一步</td><td>编排时写死</td><td>转移表 + 事件</td><td>模型运行时推理</td></tr>
-          <tr><td>表达重点</td><td>顺序与依赖</td><td>生命周期与合法性</td><td>目标、工具、边界</td></tr>
-          <tr><td>一致性</td><td>高（路径可枚举）</td><td>高（状态 × 事件可穷举）</td><td>低（同题不同路径）</td></tr>
-          <tr><td>开放表达覆盖</td><td>低，未配置即兜底</td><td>中，新事件要加转移</td><td>高，可处理长尾与追问</td></tr>
-          <tr><td>典型故障</td><td>卡在未定义分支</td><td>非法转移被拒 / 状态漏配</td><td>幻觉、越权、绕路、成本失控</td></tr>
-          <tr><td>可观测性</td><td>每步都有日志</td><td>状态快照可回放</td><td>要看决策链与工具调用埋点</td></tr>
-          <tr><td>合规审计</td><td>最易审计</td><td>最易审计</td><td>需禁答库、白名单、人工复核</td></tr>
-          <tr><td>典型场景</td><td>货运外呼的固定节点：开场白→资料补全→议价→结束</td><td>订单确认、议价、取消等有阶段与放行条件的生命周期</td><td>动态议价、跨系统查价、复杂异议与投诉</td></tr>
-          <tr><td>一句话</td><td>按剧本演</td><td>按规则走</td><td>按目标做</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ===== 国内文章 ===== -->
-  <section class="block">
-    <div class="sec-head">
-      <span class="sec-no">03</span>
-      <h2>国内文章：中文语境下怎么讲这件事</h2>
-      <p>优先国内厂商官方文档，其次看社区里的一手拆解</p>
-    </div>
-    <div class="cols3">
-      <div class="card" style="--c:#38bdf8">
-        <h3>工作流（Workflow）</h3>
-        <div class="ctag">有向步骤 + 条件分支 + 调用编排</div>
-        <ul class="doclist">
-          <li>
-            <div class="org">阿里云百炼 · 官方文档</div>
-            <a href="https://help.aliyun.com/zh/model-studio/workflow-application/" target="_blank" rel="noopener">工作流应用：节点与编排</a>
-            <div class="desc">国内一线平台的中文一手资料：开始/结束、条件判断、循环、批处理、大模型节点各自的语义。</div>
-          </li>
-          <li>
-            <div class="org">扣子 Coze · 官方文档</div>
-            <a href="https://docs.coze.cn/guides/workflow_node" target="_blank" rel="noopener">工作流节点</a>
-            <div class="desc">低代码画布上的节点定义，含子工作流嵌套、批处理、异常忽略——典型“画布即代码”。</div>
-          </li>
-          <li>
-            <div class="org">阿里云开发者社区</div>
-            <a href="https://developer.aliyun.com/article/1776672" target="_blank" rel="noopener">工作流 vs Agent 与行业落地范式</a>
-            <div class="desc">控制流“编译期定义 vs 推理期生成”的对比表，并给出“工作流为骨、Agent 为肉、人工为关口”的落地结论。</div>
-          </li>
-          <li>
-            <div class="org">腾讯云开发者社区</div>
-            <a href="https://cloud.tencent.cn/developer/article/2735523" target="_blank" rel="noopener">Workflow vs Agent：别再傻傻分不清，选错真的会踩坑</a>
-            <div class="desc">“流水线工人 vs 自带工具箱的实习生”，并给出三问辨别法，适合讲给业务方听。</div>
-          </li>
-          <li>
-            <div class="org">华为开发者联盟</div>
-            <a href="https://developer.huawei.com/consumer/cn/blog/topic/03205693050407044" target="_blank" rel="noopener">架构演进：从确定性工作流到自主智能体</a>
-            <div class="desc">用同一场景（旅游规划）分别走 Workflow 与 Agent，直观看两种范式的差距。</div>
-          </li>
-        </ul>
-      </div>
-
-      <div class="card" style="--c:#a78bfa">
-        <h3>状态机（State Machine）</h3>
-        <div class="ctag">状态 + 事件 + 转移 + 放行条件</div>
-        <ul class="doclist">
-          <li>
-            <div class="org">阿里云开发者社区</div>
-            <a href="https://developer.aliyun.com/article/1108490" target="_blank" rel="noopener">COLA 框架状态机设计与实现全过程解析</a>
-            <div class="desc">国内 Java 业务最常用的轻量状态机：State / Event / Transition / Condition 四件套，附审批与订单流转示例。</div>
-          </li>
-          <li>
-            <div class="org">阿里云开发者社区</div>
-            <a href="https://developer.aliyun.com/article/1774551" target="_blank" rel="noopener">DAG 与状态机工作流编排原理、差异对比与应用实践</a>
-            <div class="desc">DAG 适合固定无环的流水线，状态机适合事件驱动、多轮分支、可回滚的对话型场景——正好对应本次演示。</div>
-          </li>
-          <li>
-            <div class="org">CSDN</div>
-            <a href="https://blog.csdn.net/qq_50446805/article/details/151906088" target="_blank" rel="noopener">状态机编排与 Activiti / Camunda / Flowable 的区别</a>
-            <div class="desc">一句话讲透：状态机是事件驱动，工作流引擎是完成任务就往下走；配“红绿灯 vs 菜谱”的类比。</div>
-          </li>
-          <li>
-            <div class="org">CSDN</div>
-            <a href="https://blog.csdn.net/xiaofeng10330111/article/details/166850495" target="_blank" rel="noopener">能自主不等于该自主：四档选型与可控性工程</a>
-            <div class="desc">把“确定性流程 / 状态机 / 工作流编排 / 自主 Agent”分四档，判据就是“下一步由谁决定”，与本站三栏完全同构。</div>
-          </li>
-        </ul>
-      </div>
-
-      <div class="card" style="--c:#fbbf24">
-        <h3>Agent</h3>
-        <div class="ctag">目标 + 工具 + 循环 + 护栏</div>
-        <ul class="doclist">
-          <li>
-            <div class="org">阿里云百炼 · 官方文档</div>
-            <a href="https://help.aliyun.com/zh/model-studio/flow-agent-introduction" target="_blank" rel="noopener">Flow Agent 概述：智能体应用 vs 工作流应用</a>
-            <div class="desc">官方给的选择口径很干脆：开放式对话选智能体，步骤已知、要可复现选工作流。</div>
-          </li>
-          <li>
-            <div class="org">阿里云开发者社区</div>
-            <a href="https://developer.aliyun.com/article/1741784" target="_blank" rel="noopener">当我们在聊 Agent 时，我们到底在聊什么</a>
-            <div class="desc">用“自主决策链条的长度”区分 Workflow / Skills / Agent：设计期定完、压缩到单个任务、运行时生成。</div>
-          </li>
-          <li>
-            <div class="org">阿里云开发者社区</div>
-            <a href="https://developer.aliyun.com/article/1742120" target="_blank" rel="noopener">你买的那个 Agent，可能只是一个 Workflow 套了层皮</a>
-            <div class="desc">“三问测试法”识别真假 Agent，很适合演示时反问听众：不画流程图它能跑吗？</div>
-          </li>
-          <li>
-            <div class="org">掘金</div>
-            <a href="https://juejin.cn/post/7667008177452351539" target="_blank" rel="noopener">AI Workflow 与 Agent 到底有什么区别：从流水线到智能决策</a>
-            <div class="desc">从 LangChain 的 pipe 链式写法讲到 ReAct 循环，代码与场景都有，适合给研发看。</div>
-          </li>
-          <li>
-            <div class="org">火山引擎开发者社区</div>
-            <a href="https://developer.volcengine.com/articles/7447047229900554252" target="_blank" rel="noopener">Coze 工作流搭建介绍</a>
-            <div class="desc">实战视角：开始/结束、循环、大模型节点怎么配，以及输出不符合预期时怎么逐节点排查。</div>
-          </li>
-        </ul>
-      </div>
-    </div>
-    <div class="combo">
-      想找<b>公众号版本</b>：微信「搜一搜」按上面对应的标题关键词检索即可。同类选题常出现在 <b>阿里云开发者</b>、<b>腾讯云开发者</b>、<b>华为云开发者联盟</b>、<b>火山引擎开发者社区</b>；行业解读可看 <b>机器之心</b>、<b>InfoQ</b>、<b>Datawhale</b>。微信文章不对外开放直链，只能站内搜索标题。
-    </div>
-  </section>
-
-  <!-- ===== 可上手体验 ===== -->
-  <section class="block">
-    <div class="sec-head">
-      <span class="sec-no">04</span>
-      <h2>可以自己上手体验的产品</h2>
-      <p>绿色=注册即用，橙色=要预约/商务开通；每个都标了“进去先做什么”</p>
-    </div>
-    <div class="case-grid">
-      <div class="case" style="--c:#38bdf8">
-        <h3><span class="pill">工作流</span>拖节点就能跑</h3>
-        <ul>
-          <li><b><a href="https://www.coze.cn/" target="_blank" rel="noopener">扣子 Coze</a></b><em class="free">免费</em> <span>— 上手最快。新建工作流，把演示里的 S1→S7 拖成 7 个节点，加一个条件分支，10 分钟能跑通。</span></li>
-          <li><b><a href="https://bailian.console.aliyun.com/" target="_blank" rel="noopener">阿里云百炼</a></b><em class="free">有免费额度</em> <span>— 同一控制台里同时建“工作流应用”和“智能体应用”，用同一个需求对比，最直观。</span></li>
-          <li><b><a href="https://cloud.tencent.com/product/adp" target="_blank" rel="noopener">腾讯云智能体开发平台 ADP</a></b><em class="free">体验版 0 元</em> <span>— 四种模式并排：单工作流 / 标准 / Multi-Agent / Claw，可直接对照“谁决定下一步”。</span></li>
-          <li><b><a href="https://dify.ai/" target="_blank" rel="noopener">Dify</a></b><em class="free">云版免费</em> <span>— 工作流画布里可以塞 Agent 节点，适合演示“固定骨架 + 局部自主”。</span></li>
-          <li><b><a href="https://n8n.io/" target="_blank" rel="noopener">n8n</a></b><em class="free">可本地跑</em> <span>— 非 AI 的纯工作流对照物，用来讲“流程引擎本来长什么样”。</span></li>
-          <li><b><a href="https://www.aliyun.com/product/ccc" target="_blank" rel="noopener">阿里云智能联络中心</a></b><em class="paid">需开通</em> <span>— 外呼任务的话术流、节点跳转、转人工，跟本次货运场景最接近。</span></li>
-        </ul>
-      </div>
-      <div class="case" style="--c:#a78bfa">
-        <h3><span class="pill">状态机</span>画转移表</h3>
-        <ul>
-          <li><b><a href="https://stately.ai/editor" target="_blank" rel="noopener">Stately Studio</a></b><em class="free">浏览器即用</em> <span>— 最推荐。照着图四画 DIALING → OPENING → NEGO → GUIDE_PRICE → CLOSE_SUCCESS → SUMMARY，加放行条件，点事件就能看非法转移被拦。</span></li>
-          <li><b><a href="https://stately.ai/docs/state-machines-and-statecharts" target="_blank" rel="noopener">XState 官方概念页</a></b><em class="free">免费</em> <span>— 配着 Studio 一起看，把 state / event / transition / guard 四个词对上。</span></li>
-          <li><b><a href="https://www.camunda.com/" target="_blank" rel="noopener">Camunda</a></b><em class="paid">免费试用</em> <span>— BPMN 泳道 + 网关，看清“工作流引擎”和“状态机”到底差在哪。</span></li>
-          <li><b><a href="https://www.flowable.com/open-source" target="_blank" rel="noopener">Flowable</a></b><em class="free">开源</em> <span>— 国内审批流最常见的开源引擎，可本地起一套跑请假/报销流程。</span></li>
-          <li><b><a href="https://aws.amazon.com/step-functions/" target="_blank" rel="noopener">AWS Step Functions</a></b><em class="paid">有免费额度</em> <span>— 托管状态机，执行历史里能看到每一步状态与转移，适合讲可审计。</span></li>
-          <li><b><a href="https://www.aliyun.com/product/fnf" target="_blank" rel="noopener">阿里云云工作流（FnF）</a></b><em class="paid">需开通</em> <span>— 国内版的同类服务，控制台里有可视化执行图。</span></li>
-        </ul>
-      </div>
-      <div class="case" style="--c:#fbbf24">
-        <h3><span class="pill">Agent</span>只给目标</h3>
-        <ul>
-          <li><b><a href="https://bailian.console.aliyun.com/" target="_blank" rel="noopener">百炼 · 智能体应用</a></b><em class="free">有免费额度</em> <span>— 只写提示词 + 挂工具，不给流程图；同一个货运需求，看它自己决定先查价还是先查订单。</span></li>
-          <li><b><a href="https://www.coze.cn/" target="_blank" rel="noopener">扣子 · 智能体</a></b><em class="free">免费</em> <span>— 给 3 个插件（查订单/查价/发短信），然后故意问一个没预设的问题，看它会不会自己换路。</span></li>
-          <li><b><a href="https://cloud.tencent.com/product/adp" target="_blank" rel="noopener">腾讯云 ADP · Multi-Agent</a></b><em class="free">体验版 0 元</em> <span>— 多个智能体分工，能看到“谁调谁”的编排轨迹。</span></li>
-          <li><b><a href="https://www.51ima.com/" target="_blank" rel="noopener">得助智能（中关村科金）</a></b><em class="paid">14 天试用</em> <span>— 大模型外呼：话术推翻、插话打断、意向打标、转人工，直接体验外呼场景的 Agent 化。</span></li>
-          <li><b><a href="https://www.salesforce.com/agentforce/" target="_blank" rel="noopener">Salesforce Agentforce</a></b><em class="paid">需预约</em> <span>— Atlas 推理引擎 + 护栏配置，看国外大厂怎么把权限边界做成产品。</span></li>
-          <li><b><a href="https://www.intercom.com/fin" target="_blank" rel="noopener">Intercom Fin</a></b><em class="paid">需申请</em> <span>— 客服 Agent 的标杆：自主查知识、执行动作、干净转人工。</span></li>
-        </ul>
-      </div>
-    </div>
-    <div class="combo">
-      <b>30 分钟体验路线（建议按这个顺序）</b>：① 扣子拖一遍 7 节点工作流 → ② 百炼里用同一个需求再建一个“智能体应用”，感受“不画图也能跑” → ③ Stately 里画 4 状态 + 放行条件，故意点一个非法事件看它被拦 → ④ 回来点本站的「拒绝加价」，三栏的分化就都能对上号了。
-    </div>
-  </section>
-
-  <!-- ===== 选型建议 ===== -->
-  <section class="block">
-    <div class="sec-head">
-      <span class="sec-no">05</span>
-      <h2>怎么选：按“失败代价”而不是按“技术新旧”</h2>
-      <p>金融/催收先保可控，体验型场景再放权</p>
-    </div>
-    <div class="howto">
-      <div class="how" style="--c:#38bdf8">
-        <div class="k">确定性优先</div>
-        <h3>选工作流</h3>
-        <p>节点稳定、分支可穷举、话术要可审计。例如<b>开场白、资料补全、通知回访</b>。代价是遇到没配的意图就只走固定旁路。</p>
-      </div>
-      <div class="how" style="--c:#a78bfa">
-        <div class="k">生命周期优先</div>
-        <h3>选状态机</h3>
-        <p>有多阶段、有条件校验、要防非法跳转。例如<b>货运订单确认、议价、取消、退款</b>。代价是新事件要补转移表。</p>
-      </div>
-      <div class="how" style="--c:#fbbf24">
-        <div class="k">开放表达优先</div>
-        <h3>选 Agent</h3>
-        <p>问题长尾、需要多工具协同、要处理异议与情绪。例如<b>动态议价、跨系统查价、复杂投诉</b>。代价是必须做评测、护栏和转人工。</p>
-      </div>
-    </div>
-    <div class="combo">
-      生产上最稳的组合：<b>状态机</b>管业务生命周期（订单/工单是否合法）<span class="arrow">＋</span><b>工作流</b>管话术与步骤（先说什么、再调什么）<span class="arrow">＋</span><b>Agent</b>填开放问答复与工具选择，外面再套<b>护栏 + 转人工</b>。所谓“套壳”不是原罪，<b>控制轴有没有升级</b>才是。
-    </div>
-  </section>
-
   <footer>
-    <div class="sources">
-      <h2>Sources</h2>
-      <ol>
-        <li id="cite-1"><span class="src-title">阿里云百炼, Flow Agent 概述 — 智能体应用与工作流应用的选择口径。</span><a class="src-url" href="https://help.aliyun.com/zh/model-studio/flow-agent-introduction" target="_blank" rel="noopener">help.aliyun.com/zh/model-studio/flow-agent-introduction</a></li>
-        <li id="cite-2"><span class="src-title">阿里云百炼, 工作流应用 — 条件判断、循环、批处理等节点语义。</span><a class="src-url" href="https://help.aliyun.com/zh/model-studio/workflow-application/" target="_blank" rel="noopener">help.aliyun.com/zh/model-studio/workflow-application/</a></li>
-        <li id="cite-3"><span class="src-title">扣子 Coze, 工作流节点 — 低代码画布的节点、子工作流与批处理。</span><a class="src-url" href="https://docs.coze.cn/guides/workflow_node" target="_blank" rel="noopener">docs.coze.cn/guides/workflow_node</a></li>
-        <li id="cite-4"><span class="src-title">阿里云开发者社区, 工作流 vs Agent 与行业落地范式。</span><a class="src-url" href="https://developer.aliyun.com/article/1776672" target="_blank" rel="noopener">developer.aliyun.com/article/1776672</a></li>
-        <li id="cite-5"><span class="src-title">腾讯云开发者社区, Workflow vs Agent：别再傻傻分不清，选错真的会踩坑。</span><a class="src-url" href="https://cloud.tencent.cn/developer/article/2735523" target="_blank" rel="noopener">cloud.tencent.cn/developer/article/2735523</a></li>
-        <li id="cite-6"><span class="src-title">华为开发者联盟, 架构演进：从确定性工作流到自主智能体。</span><a class="src-url" href="https://developer.huawei.com/consumer/cn/blog/topic/03205693050407044" target="_blank" rel="noopener">developer.huawei.com/consumer/cn/blog/topic/03205693050407044</a></li>
-        <li id="cite-7"><span class="src-title">阿里云开发者社区, COLA 框架状态机设计与实现全过程解析。</span><a class="src-url" href="https://developer.aliyun.com/article/1108490" target="_blank" rel="noopener">developer.aliyun.com/article/1108490</a></li>
-        <li id="cite-8"><span class="src-title">阿里云开发者社区, DAG 与状态机工作流编排原理、差异对比与应用实践。</span><a class="src-url" href="https://developer.aliyun.com/article/1774551" target="_blank" rel="noopener">developer.aliyun.com/article/1774551</a></li>
-        <li id="cite-9"><span class="src-title">CSDN, 状态机编排与 Activiti / Camunda / Flowable 的区别。</span><a class="src-url" href="https://blog.csdn.net/qq_50446805/article/details/151906088" target="_blank" rel="noopener">blog.csdn.net/qq_50446805/article/details/151906088</a></li>
-        <li id="cite-10"><span class="src-title">CSDN, 能自主不等于该自主：确定性流程、状态机、工作流与自主 Agent 的四档选型。</span><a class="src-url" href="https://blog.csdn.net/xiaofeng10330111/article/details/166850495" target="_blank" rel="noopener">blog.csdn.net/xiaofeng10330111/article/details/166850495</a></li>
-        <li id="cite-11"><span class="src-title">阿里云开发者社区, 当我们在聊 Agent 时，我们到底在聊什么。</span><a class="src-url" href="https://developer.aliyun.com/article/1741784" target="_blank" rel="noopener">developer.aliyun.com/article/1741784</a></li>
-        <li id="cite-12"><span class="src-title">阿里云开发者社区, 你买的那个 Agent，可能只是一个 Workflow 套了层皮。</span><a class="src-url" href="https://developer.aliyun.com/article/1742120" target="_blank" rel="noopener">developer.aliyun.com/article/1742120</a></li>
-        <li id="cite-13"><span class="src-title">掘金, AI Workflow 与 Agent 到底有什么区别：从流水线到智能决策。</span><a class="src-url" href="https://juejin.cn/post/7667008177452351539" target="_blank" rel="noopener">juejin.cn/post/7667008177452351539</a></li>
-        <li id="cite-14"><span class="src-title">火山引擎开发者社区, Coze 工作流搭建介绍。</span><a class="src-url" href="https://developer.volcengine.com/articles/7447047229900554252" target="_blank" rel="noopener">developer.volcengine.com/articles/7447047229900554252</a></li>
-      </ol>
-    </div>
     <p class="disclaimer">说明：演示中的时延、工具返回与话术为教学模拟，不代表任何厂商真实产品表现；产品能力请以官方文档与实测为准。页面无外部依赖，可离线投屏。</p>
   </footer>
 
