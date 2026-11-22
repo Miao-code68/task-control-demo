@@ -504,11 +504,11 @@
   <header class="hero">
     <div class="kicker">技术方案 · 任务控制方式</div>
     <h1>工作流 / 状态机 / Agent<br><span>到底差在哪</span></h1>
-    <p class="lede">三者不是替代关系，而是“谁来决定下一步”的三档授权。下面用同一个货运外呼场景并排跑一遍：系统一呼用户（有报价场景），点一个事件，三栏同时反应，差异会自己说话。</p>
+    <p class="lede">三者不是替代关系，而是“谁来决定下一步”的三档授权。下面用同一个货运外呼场景并排跑一遍：系统一呼用户（有报价场景）。</p>
     <div class="chips">
       <span class="chip">控制权：<b>工作流 → 状态机 → 模型</b></span>
       <span class="chip">一致性：<b>高 → 高 → 低</b></span>
-      <span class="chip">覆盖率：<b>低 → 中 → 高</b></span>
+      <span class="chip">灵活性：<b>低 → 中 → 高</b></span>
       <span class="chip">生产常态：<b>三者组合，不是三选一</b></span>
     </div>
   </header>
@@ -519,11 +519,11 @@
       <p>订单 <b>F-2088</b>，上海 → 杭州，家具 1.2 吨，司机已报价 <b>¥780</b>。系统外呼用户：确认用车 → 补全货物信息 → 比价并引导加价 → 引导同意司机报价 → 强调 APP 操作 → 结束。</p>
     </div>
     <div class="controls" id="controls">
-      <button class="evt primary" data-event="normal">① 正常成单</button>
-      <button class="evt" data-event="refuse">② 拒绝加价</button>
-      <button class="evt" data-event="question">③ 用户提问</button>
-      <button class="evt" data-event="complain">④ 抱怨投诉</button>
-      <button class="evt" data-event="silence">⑤ 沉默未识别</button>
+      <button class="evt primary" data-event="normal">正常成单</button>
+      <button class="evt" data-event="refuse">拒绝加价</button>
+      <button class="evt" data-event="question">用户提问</button>
+      <button class="evt" data-event="complain">抱怨投诉</button>
+      <button class="evt" data-event="silence">沉默未识别</button>
       <button class="evt ghost" id="resetBtn">重置</button>
     </div>
   </section>
@@ -1009,7 +1009,7 @@
       </div>
     </div>
     <div class="combo">
-      <b>30 分钟体验路线（建议按这个顺序）</b>：① 扣子拖一遍 7 节点工作流 → ② 百炼里用同一个需求再建一个“智能体应用”，感受“不画图也能跑” → ③ Stately 里画 4 状态 + 放行条件，故意点一个非法事件看它被拦 → ④ 回来点本站的「② 拒绝加价」，三栏的分化就都能对上号了。
+      <b>30 分钟体验路线（建议按这个顺序）</b>：① 扣子拖一遍 7 节点工作流 → ② 百炼里用同一个需求再建一个“智能体应用”，感受“不画图也能跑” → ③ Stately 里画 4 状态 + 放行条件，故意点一个非法事件看它被拦 → ④ 回来点本站的「拒绝加价」，三栏的分化就都能对上号了。
     </div>
   </section>
 
