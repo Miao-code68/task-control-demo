@@ -811,41 +811,6 @@
 
     </div>
 
-    <div class="fsm-scene">
-      <b>演示场景</b>：系统一呼用户（有报价场景）· 订单 <em>F-2088</em> 上海→杭州 · 家具 <em>1.2 吨</em> · 司机已报价 <em>¥780</em> · 线路均价 <em>¥890</em>。下表就是上面 B 卡里那张状态图的完整转移规则，最后一列对应页面上能点出来的 demo 事件。
-    </div>
-    <div class="fsm-table-wrap">
-      <div class="table-wrap">
-        <table class="fsm-table">
-          <thead>
-            <tr><th>当前状态</th><th>事件</th><th>下一状态</th><th>放行条件 / 说明</th><th>demo 里怎么触发</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>L0 · 拨号中 DIALING</td><td>接通</td><td>开场白 OPENING</td><td>—</td><td>全部事件第 1 步</td></tr>
-            <tr class="inner"><td>L0 · 拨号中 DIALING</td><td>忙音 / 拒接 / 无人接</td><td>拨号中（内部转移）</td><td>进入重呼队列</td><td>「沉默未识别」</td></tr>
-            <tr class="inner"><td>L0 · 拨号中 DIALING</td><td>空号 / 停机</td><td>永久删除</td><td>终态，不再呼</td><td>—</td></tr>
-            <tr><td>L0 · 开场白 OPENING</td><td>报价播报 + 静默 0.5s</td><td>议价 NEGO</td><td>身份澄清 → 报司机价 → 引导同意</td><td>全部事件</td></tr>
-            <tr class="inner"><td>L0 · 开场白 OPENING</td><td>用户当场拒绝</td><td>早期挂断 CLOSE_EARLY</td><td>—</td><td>—</td></tr>
-            <tr><td>L1 · 议价 NEGO</td><td>同意司机报价</td><td>引导同意报价 GUIDE_QUOTE</td><td>—</td><td>正常成单（备选路径）</td></tr>
-            <tr><td>L1 · 议价 NEGO</td><td>同意加价</td><td>引导加价 GUIDE_PRICE</td><td>—</td><td>「正常成单」</td></tr>
-            <tr class="inner"><td>L1 · 议价 NEGO</td><td>拒绝加价（未满 3 轮）</td><td>议价（内部转移）</td><td>轮次 &lt; 3</td><td>「拒绝加价」前两轮</td></tr>
-            <tr class="inner"><td>L1 · 议价 NEGO</td><td>拒绝加价（3 轮用尽）</td><td>加价失败 CLOSE_REJECT</td><td>轮次 = 3</td><td>「拒绝加价」</td></tr>
-            <tr class="inner"><td>L1 · 议价 NEGO</td><td>用户挑战（Q1–Q6）</td><td>用户挑战 CHALLENGE</td><td>命中挑战话术库</td><td>「用户提问」</td></tr>
-            <tr class="inner"><td>L1 · 用户挑战 CHALLENGE</td><td>知识库应答完成</td><td>议价 NEGO</td><td>回原轮，不推进轮次</td><td>「用户提问」</td></tr>
-            <tr><td>L2 · 引导同意报价 GUIDE_QUOTE</td><td>APP 点击「同意报价」成功</td><td>提醒接听 FOLLOW_QUOTE</td><td>已定位到订单详情页</td><td>—</td></tr>
-            <tr><td>L2 · 引导加价 GUIDE_PRICE</td><td>APP 点击「去加价」成功</td><td>稳住别取消 FOLLOW_PRICE</td><td>已定位到加价入口</td><td>「正常成单」</td></tr>
-            <tr class="inner"><td>L2 · 引导操作 GUIDE_*</td><td>超时 / 引导失败</td><td>操作失败 CLOSE_OP</td><td>引导 ≤2 次</td><td>—</td></tr>
-            <tr><td>L3 · 提醒接听 FOLLOW_QUOTE</td><td>「通知司机马上联系您」</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>—</td></tr>
-            <tr><td>L3 · 稳住别取消 FOLLOW_PRICE</td><td>安抚不取消 + 提醒接听</td><td>成功收尾 CLOSE_SUCCESS</td><td>—</td><td>「正常成单」</td></tr>
-            <tr><td>L3 · 任意状态</td><td>不用车 / 辱骂 / 投诉 / 挂断</td><td>异常升级 ESCALATE</td><td>全局异常边</td><td>「抱怨投诉」</td></tr>
-            <tr class="inner"><td>L3 · 所有终态</td><td>收尾完成</td><td>通话小结 SUMMARY</td><td>统一汇入</td><td>全部事件</td></tr>
-            <tr><td>L4 · 通话小结 SUMMARY</td><td>生成小结 + 定 Push 范围</td><td>司机侧触达 PUSH</td><td>结论 5 选 1</td><td>「正常成单」</td></tr>
-            <tr><td>L4 · 司机侧触达 PUSH</td><td>推送完成</td><td>进入呼司机 NEXT</td><td>按结论决定是否推送</td><td>「正常成单」</td></tr>
-            <tr class="inner"><td>L4 · 进入呼司机 NEXT</td><td>—</td><td>终态</td><td>重新呼司机 / 结束</td><td>—</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </section>
 
   <footer>
