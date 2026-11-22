@@ -124,26 +124,6 @@
       return;
     }
 
-    if (evt === 'question') {
-      await wfStep('open', 'S1 开场白', 440, id, 'S1 开场白：确认是否用车 → 用户确认');
-      const cargo = wfEl('cargo');
-      if (cargo) cargo.classList.add('active');
-      if (wfState()) wfState().textContent = 'S2 资料补全';
-      log('wf', 'S2 资料补全：核对货物类型、重量、体积…', 'step');
-      await wait(420, id);
-      log('wf', '用户插话「为什么比上次贵？」→ 命中旁路「答疑」', 'event');
-      await wfSide('faq', '旁路：答疑', 620, id, '答疑：知识库命中「价格构成」→ 播报标准答案（里程 + 装卸 + 等候）');
-      log('wf', '回答完毕 → 回到 S2（返回节点在编排时写死）', 'info');
-      if (cargo) { cargo.classList.remove('active'); cargo.classList.add('done'); }
-      await wfStep('raise', 'S3 引导加价', 460, id, 'S3 加价话术 A → 用户同意');
-      await wfStep('quote', 'S4 引导同意司机报价', 460, id, 'S4 司机报价 ¥860 → 用户同意');
-      await wfStep('action', 'S5 强调立刻操作', 420, id, 'S5 引导 APP 同意报价 → 完成');
-      await wfStep('keep', 'S6 不要取消订单', 400, id, 'S6 提示取消弊端');
-      await wfStep('end', 'S7 结束语', 400, id, 'S7 结束语：寒暄后挂机');
-      if (wfState()) wfState().textContent = '流程结束（成单）';
-      return;
-    }
-
     if (evt === 'complain') {
       await wfStep('open', 'S1 开场白', 420, id, 'S1 开场白：确认是否用车 → 用户确认');
       await wfStep('cargo', 'S2 资料补全', 420, id, 'S2 资料补全：货物信息核对完成');
@@ -298,22 +278,6 @@
       await smGo('NEGO', '拒绝加价（3 轮用尽）', 'CLOSE_REJECT', 560, id, '放行条件：轮次 < 3 才允许自环', 'warn');
       await smGo('CLOSE_REJECT', '安抚、表明立场', 'SUMMARY', 500, id, '「别取消，我再帮您找找」');
       log('sm', '3 轮是写死的上限，不靠模型判断“还能不能谈”；到点就转 CLOSE_REJECT。', 'err');
-      return;
-    }
-
-    if (evt === 'question') {
-      await smGo('DIALING', '接通', 'OPENING', 420, id, '');
-      await smGo('OPENING', '报价播报 + 静默', 'NEGO', 460, id, '');
-      await smGo('NEGO', '用户挑战 Q1「怎么还要加钱」', 'CHALLENGE', 560, id, '打断当前轮，进入挑战状态');
-      log('sm', 'CHALLENGE：知识库应答 + 输出新报价，应答完回 NEGO 同一轮', 'info');
-      await wait(460, id);
-      await smGo('CHALLENGE', '应答完成', 'NEGO', 540, id, '不推进轮次、不改变阶段');
-      await smGo('NEGO', '同意加价 ¥860', 'GUIDE_PRICE', 520, id, '');
-      await smGo('GUIDE_PRICE', 'APP 操作成功', 'FOLLOW_PRICE', 500, id, '');
-      await smGo('FOLLOW_PRICE', '提醒接听', 'CLOSE_SUCCESS', 480, id, '');
-      await smGo('CLOSE_SUCCESS', '收尾', 'SUMMARY', 440, id, '');
-      await smGo('SUMMARY', '生成小结', 'PUSH', 420, id, '');
-      await smGo('PUSH', '推送司机', 'NEXT', 400, id, '');
       return;
     }
 
@@ -503,25 +467,6 @@
         tools: [['reprice', '改价', 440, '改为拼车单 ¥620'], ['quote', '查司机报价', 400, '拼车司机报价 ¥640'], ['agree', '同意报价', 420, '已锁价 ¥640']],
         tts: '已为您改为拼车单，司机报价 ¥640，请在 APP 点击确认，今晚发车。' });
       await agClose('被拒后换方案成交；同样的目标，走了和固定加价话术完全不同的路径。', id);
-      return;
-    }
-
-    if (evt === 'question') {
-      await agRound({ id,
-        user: '为什么比上次贵了 60 块？',
-        intent: '价格质疑（faq_price）',
-        smCheck: '用户提问 → 继续当前任务，不结束 ✔',
-        think: '预载的 IM 聊天记录里已有上次订单 ¥720 → 差额 = 等候费 ¥60，可直接回答，零工具调用',
-        tts: '上次 ¥720 是没有装卸等候费的；这次您备注了需装卸，含 1 小时等候费 ¥60，所以是 ¥780。' });
-      log('ag', '↑ 这一轮没有调用任何工具——预取把响应延迟压到最低。', 'info');
-      await agRound({ id,
-        user: '哦，是这么回事，那行',
-        intent: '接受解释（accept）',
-        smCheck: '用户接受 → 进入确认报价 ✔',
-        think: '异议已消除，趁热推动锁价',
-        tools: [['agree', '同意报价', 440, '已锁价 ¥780']],
-        tts: '好的，价格保持 ¥780 不变。请打开 APP 点击「同意报价」完成确认。' });
-      await agClose('解释清楚并成交，未额外让价；其中一轮零工具调用，体现预取价值。', id);
       return;
     }
 
